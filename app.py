@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import random
 
 # Set page config
@@ -66,11 +67,90 @@ st.markdown("""
         transform: scale(1.05);
     }
     </style>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait for Streamlit to fully load
+        setTimeout(function() {
+            let lastMoveTime = 0;
+            const moveDelay = 100; // milliseconds between moves
+            
+            document.addEventListener('mousemove', function(e) {
+                const now = Date.now();
+                if (now - lastMoveTime < moveDelay) return;
+                
+                // Find all buttons
+                const buttons = document.querySelectorAll('button');
+                buttons.forEach(function(button) {
+                    // Check if this is the "No" button
+                    if (button.textContent.includes('No')) {
+                        const rect = button.getBoundingClientRect();
+                        const buttonCenterX = rect.left + rect.width / 2;
+                        const buttonCenterY = rect.top + rect.height / 2;
+                        
+                        // Calculate distance from mouse to button center
+                        const distX = e.clientX - buttonCenterX;
+                        const distY = e.clientY - buttonCenterY;
+                        const distance = Math.sqrt(distX * distX + distY * distY);
+                        
+                        // If mouse is within 150px of the button, trigger a click to move it
+                        if (distance < 150) {
+                            lastMoveTime = now;
+                            button.click();
+                        }
+                    }
+                });
+            });
+        }, 1000);
+    });
+    </script>
 """, unsafe_allow_html=True)
 
 # Main content
 if not st.session_state.clicked_yes:
     st.markdown("<h1 class='center-text'>💕 Will You Be My Valentine? 💕</h1>", unsafe_allow_html=True)
+    
+    # Inject JavaScript to detect hover and move the No button
+    components.html("""
+        <script>
+        // Function to continuously check for No button and add hover detection
+        function setupHoverDetection() {
+            const buttons = window.parent.document.querySelectorAll('button');
+            buttons.forEach(function(button) {
+                if (button.textContent.includes('No') && !button.hasAttribute('data-hover-setup')) {
+                    button.setAttribute('data-hover-setup', 'true');
+                    
+                    button.addEventListener('mouseenter', function() {
+                        // Trigger click when mouse enters the button area
+                        button.click();
+                    });
+                    
+                    // Also detect proximity
+                    window.parent.document.addEventListener('mousemove', function(e) {
+                        const rect = button.getBoundingClientRect();
+                        const buttonCenterX = rect.left + rect.width / 2;
+                        const buttonCenterY = rect.top + rect.height / 2;
+                        
+                        const distX = e.clientX - buttonCenterX;
+                        const distY = e.clientY - buttonCenterY;
+                        const distance = Math.sqrt(distX * distX + distY * distY);
+                        
+                        // If mouse is within 100px, click the button to move it
+                        if (distance < 100 && !button.classList.contains('clicked')) {
+                            button.classList.add('clicked');
+                            button.click();
+                            setTimeout(function() {
+                                button.classList.remove('clicked');
+                            }, 300);
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Run setup repeatedly to catch dynamically created buttons
+        setInterval(setupHoverDetection, 100);
+        </script>
+    """, height=0)
     
     # Display image in its own centered section (much larger)
     col1, col2, col3 = st.columns([1, 3, 1])

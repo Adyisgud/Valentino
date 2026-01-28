@@ -17,9 +17,9 @@ st.set_page_config(
 if 'clicked_yes' not in st.session_state:
     st.session_state.clicked_yes = False
 if 'no_button_top' not in st.session_state:
-    st.session_state.no_button_top = 23  # Position 23 (right of center in bottom row)
+    st.session_state.no_button_top = 8  # Position 8 (right of center in middle row)
 if 'previous_positions' not in st.session_state:
-    st.session_state.previous_positions = [23]
+    st.session_state.previous_positions = [8]
 
 # Custom CSS for styling and button positioning
 st.markdown("""
@@ -72,46 +72,43 @@ st.markdown("""
 if not st.session_state.clicked_yes:
     st.markdown("<h1 class='center-text'>💕 Will You Be My Valentine? 💕</h1>", unsafe_allow_html=True)
     
-    # Define grid positions (5 rows x 5 columns = 25 positions)
-    # Image occupies positions 6, 7, 8, 11, 12, 13, 16, 17, 18 (center 3x3 of 5x5 grid)
-    image_positions = {6, 7, 8, 11, 12, 13, 16, 17, 18}
+    # Display image in its own centered section (much larger)
+    col1, col2, col3 = st.columns([1, 3, 1])
+    with col2:
+        st.image("Valentinopic.jpg", use_column_width=True)
     
-    # Yes button at position 21 (bottom row, left of center)
-    yes_position = 21
+    st.write("")
+    st.write("")
     
-    # No button starts at position 23 (bottom row, right of center)
-    no_position = st.session_state.no_button_top
+    # Define grid positions (3 rows x 5 columns = 15 positions for buttons only)
+    # Yes button at position 6 (middle row, left of center)
+    yes_position = 6
     
-    # Make sure no_position doesn't overlap with yes or image
-    forbidden_positions = image_positions | {yes_position}
-    if no_position in forbidden_positions:
-        no_position = 23
+    # No button starts at position 8 (middle row, right of center)
+    no_position = st.session_state.no_button_top % 15
     
-    # Create 5 rows of 5 columns each
-    for row in range(5):
+    # Make sure no_position doesn't overlap with yes
+    if no_position == yes_position:
+        no_position = 8
+    
+    # Create 3 rows of 5 columns each for buttons
+    for row in range(3):
         cols = st.columns(5)
         for col_idx in range(5):
             current_position = row * 5 + col_idx
             
             with cols[col_idx]:
-                if current_position in image_positions:
-                    # Display image only once in the center position
-                    if current_position == 12:  # Center of the image block
-                        st.image("Valentinopic.jpg", 
-                                use_column_width=True)
-                    else:
-                        st.write("")  # Empty space for image area
-                elif current_position == yes_position:
+                if current_position == yes_position:
                     if st.button("❤️ YES! ❤️", key="yes_button", use_container_width=True):
                         st.session_state.clicked_yes = True
                         st.rerun()
                 elif current_position == no_position:
                     if st.button("😢 No", key=f"no_button_{st.session_state.no_button_top}", use_container_width=True):
-                        # Generate new position anywhere except yes_position and image_positions
-                        forbidden_positions_list = list(forbidden_positions) + st.session_state.previous_positions[-3:]
-                        new_position = random.randint(0, 24)
+                        # Generate new position anywhere except yes_position and recent positions
+                        forbidden_positions_list = [yes_position] + st.session_state.previous_positions[-3:]
+                        new_position = random.randint(0, 14)
                         while new_position in forbidden_positions_list:
-                            new_position = random.randint(0, 24)
+                            new_position = random.randint(0, 14)
                         st.session_state.previous_positions.append(new_position)
                         st.session_state.no_button_top = new_position
                         st.rerun()

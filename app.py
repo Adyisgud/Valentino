@@ -18,6 +18,8 @@ if 'clicked_yes' not in st.session_state:
     st.session_state.clicked_yes = False
 if 'no_button_top' not in st.session_state:
     st.session_state.no_button_top = 23  # Position 23 (right of center in bottom row)
+if 'previous_positions' not in st.session_state:
+    st.session_state.previous_positions = [23]
 
 # Custom CSS for styling and button positioning
 st.markdown("""
@@ -27,10 +29,11 @@ st.markdown("""
     }
     .center-text {
         text-align: center;
-        font-size: 2.5em;
-        color: #ff1493;
+        font-size: 3em;
+        color: #c71585;
         font-weight: bold;
         margin: 20px 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
     }
     .success-message {
         text-align: center;
@@ -95,7 +98,7 @@ if not st.session_state.clicked_yes:
                     # Display image only once in the center position
                     if current_position == 12:  # Center of the image block
                         st.image("Valentinopic.jpg", 
-                                width=400)
+                                width=500)
                     else:
                         st.write("")  # Empty space for image area
                 elif current_position == yes_position:
@@ -105,9 +108,11 @@ if not st.session_state.clicked_yes:
                 elif current_position == no_position:
                     if st.button("😢 No", key=f"no_button_{st.session_state.no_button_top}", use_container_width=True):
                         # Generate new position anywhere except yes_position and image_positions
+                        forbidden_positions_list = list(forbidden_positions) + st.session_state.previous_positions[-3:]
                         new_position = random.randint(0, 24)
-                        while new_position in forbidden_positions:
+                        while new_position in forbidden_positions_list:
                             new_position = random.randint(0, 24)
+                        st.session_state.previous_positions.append(new_position)
                         st.session_state.no_button_top = new_position
                         st.rerun()
                 else:

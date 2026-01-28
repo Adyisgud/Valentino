@@ -98,7 +98,7 @@ if not st.session_state.clicked_yes:
                     # Display image only once in the center position
                     if current_position == 12:  # Center of the image block
                         st.image("Valentinopic.jpg", 
-                                width=700)
+                                width=1200)
                     else:
                         st.write("")  # Empty space for image area
                 elif current_position == yes_position:

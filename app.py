@@ -30,10 +30,10 @@ st.markdown("""
     .center-text {
         text-align: center;
         font-size: 3em;
-        color: #c71585;
+        color: #d91d87;
         font-weight: bold;
         margin: 20px 0;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
     }
     .success-message {
         text-align: center;
@@ -98,7 +98,7 @@ if not st.session_state.clicked_yes:
                     # Display image only once in the center position
                     if current_position == 12:  # Center of the image block
                         st.image("Valentinopic.jpg", 
-                                width=500)
+                                width=700)
                     else:
                         st.write("")  # Empty space for image area
                 elif current_position == yes_position:
